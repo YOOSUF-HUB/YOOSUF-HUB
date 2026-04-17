@@ -1,4 +1,4 @@
-<h1 align="center">Hi 👋 I'm Yoosuf</h1>
+<h1 align="center">Hi,  I'm Yoosuf</h1>
 <h3 align="center">Data Science Undergraduate | AI & Machine Learning Practitioner</h3>
 
 <p align="center">
@@ -16,7 +16,7 @@ I approach AI with an <strong>engineering-first mindset</strong>: clean implemen
 
 ---
 
-## 🚀 Professional Focus
+## Professional Focus
 
 * Applied Machine Learning & AI Systems
 * Data Analysis, Feature Engineering & Model Evaluation
@@ -25,7 +25,7 @@ I approach AI with an <strong>engineering-first mindset</strong>: clean implemen
 
 ---
 
-## 🤖 AI & Data Toolkit
+## AI & Data Toolkit
 
 <p align="left">
 <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
@@ -36,7 +36,7 @@ I approach AI with an <strong>engineering-first mindset</strong>: clean implemen
 
 ---
 
-## 💡 Engineering Stack
+## Engineering Stack
 
 ### Languages
 
