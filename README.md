@@ -9,4 +9,6 @@ _____.___.                           _____
  \/                        \/              
 </pre>
 
+<a href="https://github.com/YOOSUF-HUB"><img src="https://timeline-readme.vercel.app/api/timeline?user=YOOSUF-HUB" width="100%" alt="YOOSUF-HUB's GitHub contribution year as an animated wave"></a>
+
 </div>
