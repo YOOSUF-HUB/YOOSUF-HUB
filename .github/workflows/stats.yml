@@ -1,0 +1,43 @@
+name: Refresh stats card
+
+on:
+  schedule:
+    - cron: "17 2 * * *"   # daily, 02:17 UTC
+  workflow_dispatch:        # "Run workflow" button in the Actions tab
+  push:
+    branches: [main]
+    paths: ["tools/**"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stats
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Render SVG cards
+        env:
+          # Optional: add a STATS_TOKEN secret (classic PAT, read:user) to include private contributions.
+          GITHUB_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/build_assets.py
+          python tools/build_stats.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add assets
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: refresh README cards"
+          git push

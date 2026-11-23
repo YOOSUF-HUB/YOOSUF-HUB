@@ -257,11 +257,145 @@ CHIPS = [
 ]
 
 
+# ── terminal "whoami" (types itself out once, then the prompt blinks) ─────
+TERMINAL = [
+    ("$", "whoami"),
+    ("", "yoosuf ahamed: ai engineer intern, data science @ SLIIT"),
+    ("$", "cat focus.txt"),
+    ("", "llms · rag · ai agents · backend systems"),
+    ("$", "ls ~/learning"),
+    ("", "langgraph/   model-context-protocol/   vector-databases/"),
+    ("$", "echo $MOTTO"),
+    ("", "real-world, production-ready ai. one repo at a time."),
+]
+
+
+def terminal():
+    W, size, lh, top = 880, 13, 24, 58
+    H = top + lh * (len(TERMINAL) + 1) + 8
+    cw = size * 0.62                     # generous monospace advance
+    b = [f'<rect width="{W}" height="28" fill="{BAR}"/>', hline(27, 0, W)]
+    for i, c in enumerate([ACCENT, MUTED, MUTED]):
+        b.append(f'<rect x="{12 + i*12}" y="10" width="8" height="8" fill="{c}"/>')
+    b.append(t(56, 19, "zsh: yoosuf@hub", 12, "m"))
+    b.append(t(W - 12, 19, "~", 12, "m", "end"))
+    css, delay = [], 0.6
+    for i, (prompt, txt) in enumerate(TERMINAL):
+        y = top + i * lh
+        x = 24
+        if prompt:
+            b.append(t(x, y, prompt, size, "a w"))
+            x += 20
+        b.append(t(x, y, txt, size, "p" if prompt else ""))
+        width = int(len(txt) * cw) + 12
+        if prompt:  # command: typed character by character
+            n = len(txt)
+            dur = n * 0.055
+            css.append(f".c{i}{{animation:ty{i} {dur:.2f}s steps({n},end) {delay:.2f}s both}}"
+                       f"@keyframes ty{i}{{to{{transform:translateX({width}px)}}}}")
+        else:       # output: fades in at once
+            dur = 0.18
+            css.append(f".c{i}{{animation:out {dur}s linear {delay:.2f}s both}}")
+        b.append(f'<rect class="cv c{i}" x="{x-1}" y="{y-size}" width="{width+2}" height="{size+6}" fill="{PANEL}"/>')
+        if prompt:
+            # typing cursor rides the cover's left edge, visible only while this line types
+            css.append(f".k{i}{{animation:on {dur:.2f}s linear {delay:.2f}s}}")
+            b.append(f'<g class="kc k{i}"><rect class="cv c{i}" x="{x-1}" y="{y-size+1}" width="8" height="{size+2}" fill="{ACCENT}"/></g>')
+        delay += dur + (0.35 if prompt else 0.5)
+    y = top + len(TERMINAL) * lh
+    b.append(f'<g class="fin">{t(24, y, "$", size, "a w")}'
+             f'<rect class="blc" x="44" y="{y-size+1}" width="8" height="{size+2}" fill="{ACCENT}"/></g>')
+    css.append(f".fin{{opacity:0;animation:fin .01s linear {delay:.2f}s forwards}}@keyframes fin{{to{{opacity:1}}}}"
+               ".blc{animation:bl 1.1s steps(1,end) infinite}"
+               ".kc{opacity:0}@keyframes on{from,to{opacity:1}}@keyframes out{to{opacity:0}}"
+               "@media(prefers-reduced-motion:reduce){.cv,.kc{display:none}.fin{opacity:1;animation:none}}")
+    body = f'<rect y="28" width="{W}" height="{H-28}" fill="{PANEL}"/>' + "".join(b)
+    return svg(W, H, "Terminal: whoami. Yoosuf Ahamed, AI engineer intern and data science student at SLIIT, "
+               "focused on LLMs, RAG and AI agents.", f"<style>{''.join(css)}</style>{body}")
+
+
+# ── agent pipeline (packets flow along the edges) ────────────────────────
+PIPELINE = {
+    "query": (20, 83, 120, "query", "user"),
+    "plan": (180, 83, 150, "planner", "LLM · LangGraph"),
+    "ret": (380, 44, 150, "retriever", "FAISS · embeddings"),
+    "tool": (380, 122, 150, "tools", "MCP · APIs · SQL"),
+    "syn": (580, 83, 150, "synthesizer", "grounded LLM"),
+    "ans": (770, 83, 90, "answer", "+ sources"),
+}
+
+
+def pipeline():
+    W, H, nh = 880, 230, 52
+    b = [f'<rect width="{W}" height="28" fill="{BAR}"/>', hline(27, 0, W)]
+    b.append(t(12, 19, "agent.pipeline", 12, "p w"))
+    b.append(t(W - 12, 19, "how I build agents", 12, "m", "end"))
+    b.append(f'<defs><pattern id="pg" width="12" height="12" patternUnits="userSpaceOnUse">'
+             f'<rect width="2" height="2" fill="{LINE}"/></pattern>'
+             f'<marker id="ah" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto">'
+             f'<path d="M0 0L6 3L0 6z" fill="{MUTED}"/></marker></defs>')
+    b.append(f'<rect y="28" width="{W}" height="162" fill="url(#pg)"/>')
+    edges = ["M140 109H178", "M330 109H355V70H378", "M330 109H355V148H378",
+             "M530 70H555V109H578", "M530 148H555V109H578", "M730 109H768"]
+    for d in edges:
+        b.append(f'<path d="{d}" fill="none" stroke="{MUTED}" stroke-width="1.2" marker-end="url(#ah)"/>')
+    for d, begin in [("M140 109H355V70H555V109H770", "0s"), ("M140 109H355V148H555V109H770", "2s")]:
+        b.append(f'<circle r="3.5" fill="{ACCENT}" opacity="0"><set attributeName="opacity" to="1" begin="{begin}"/>'
+                 f'<animateMotion dur="4s" begin="{begin}" repeatCount="indefinite" path="{d}"/></circle>')
+    for key, (x, y, w, name, sub) in PIPELINE.items():
+        on = key == "plan"
+        b.append(f'<rect x="{x}" y="{y}" width="{w}" height="{nh}" fill="{PANEL}" stroke="{ACCENT if on else LINE}"/>')
+        b.append(t(x + 12, y + 22, name, 12, "a w" if on else "p w"))
+        b.append(t(x + 12, y + 40, sub, 10, "m"))
+    b.append(hline(190, 0, W))
+    b.append(t(16, 215, "plan → retrieve → act → answer", 13, "p"))
+    b.append(t(W - 16, 215, "LangGraph · MCP · RAG", 12, "a", "end"))
+    return svg(W, H, "Agent pipeline: a user query goes to an LLM planner, which retrieves context with FAISS "
+               "and calls MCP tools, then a grounded LLM writes the answer with sources.", "".join(b))
+
+
+# ── tech stack ───────────────────────────────────────────────────────────
+STACK = [  # (row label, [(item, daily_driver), ...])
+    ("LANGUAGES", [("python", 1), ("typescript", 0), ("sql", 1), ("java", 0), ("kotlin", 0)]),
+    ("ML / DL", [("tensorflow", 1), ("pytorch", 0), ("scikit-learn", 1), ("pandas", 1), ("streamlit", 0)]),
+    ("LLM / AGENTS", [("rag", 1), ("langgraph", 1), ("mcp", 1), ("faiss", 0), ("gemini", 0), ("groq", 0)]),
+    ("BACKEND", [("fastapi", 1), ("flask", 0), ("postgres", 0), ("mongodb", 0), ("sqlite", 0)]),
+    ("TOOLING", [("docker", 1), ("git", 1), ("linux", 0), ("vercel", 0), ("vscode", 0)]),
+]
+
+
+def stack():
+    W, top, rh = 880, 28, 38
+    H = top + rh * len(STACK) + 12
+    b = [f'<rect width="{W}" height="28" fill="{BAR}"/>', hline(27, 0, W)]
+    b.append(t(12, 19, "stack", 12, "p w"))
+    b.append(f'<rect x="{W-178}" y="10" width="8" height="8" fill="{ACCENT}"/>' + t(W - 164, 19, "daily", 11, "m"))
+    b.append(f'<rect x="{W-110}" y="10" width="8" height="8" fill="none" stroke="{MUTED}"/>' + t(W - 96, 19, "comfortable", 11, "m"))
+    b.append(vline(150, top, H))
+    for r, (label, items) in enumerate(STACK):
+        y = top + 6 + r * rh
+        if r:
+            b.append(hline(y - 4, 0, W))
+        b.append(t(16, y + 21, label, 10, "m"))
+        x = 166
+        for name, daily in items:
+            w = int(len(name) * 7.9) + 22
+            b.append(f'<rect x="{x}" y="{y+4}" width="{w}" height="24" fill="{ACCENT_BG if daily else PANEL}" '
+                     f'stroke="{ACCENT if daily else LINE}"/>')
+            b.append(t(x + w / 2, y + 20, name, 12, "a w" if daily else "p", "middle"))
+            x += w + 8
+    return svg(W, H, "Tech stack: " + "; ".join(f"{l.lower()}: {', '.join(i for i, _ in it)}" for l, it in STACK),
+               "".join(b))
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     (OUT / "header.svg").write_text(header())
     for i, (slug, name, right, cap, lang, title, art) in enumerate(TILES, 1):
         (OUT / f"tile-{slug}.svg").write_text(tile(i, name, right, cap, lang, title, "".join(art())))
+    (OUT / "terminal.svg").write_text(terminal())
+    (OUT / "pipeline.svg").write_text(pipeline())
+    (OUT / "stack.svg").write_text(stack())
     for slug, label, icon, title in CHIPS:
         (OUT / f"{slug}.svg").write_text(chip(label, icon, title))
     print("wrote", sorted(p.name for p in OUT.glob("*.svg")))
