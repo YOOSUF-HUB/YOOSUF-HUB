@@ -107,7 +107,7 @@ def header():
 TW, TH, ART = 440, 307, 231  # tile size, art height
 
 
-def tile(n, name, right, caption, lang, title, art):
+def tile(n, name, right, caption, lang, title, art, TW=TW):
     b = [f'<rect width="{TW}" height="28" fill="{BAR}"/>', hline(27, 0, TW)]
     b.append(f'<rect x="8" y="6" width="16" height="16" fill="{ACCENT_BG}"/>')
     b.append(t(16, 18, str(n), 12, "a w", "middle"))
@@ -123,6 +123,49 @@ def tile(n, name, right, caption, lang, title, art):
     b.append(t(16, 288, caption, 13, "p"))
     b.append(t(TW - 16, 288, lang, 12, "m", "end"))
     return svg(TW, TH, title, "".join(b))
+
+
+def art_open_analyst():
+    """Full-width featured tile: ask in plain words -> deterministic tools -> chart + insight."""
+    a = [panel(18, 18, 290, 160)]
+    a.append(t(30, 40, "you", 10, "m"))
+    a.append(t(30, 58, "which region grew fastest", 12, "p"))
+    a.append(t(30, 74, "last quarter?", 12, "p"))
+    steps = [("load", "sales.csv", "12,480 rows"), ("group", "region, quarter", "4 × 2"),
+             ("compute", "pct_change()", "exact"), ("plot", "bar chart", "done")]
+    for i, (verb, arg, res) in enumerate(steps):
+        y = 102 + i * 19
+        a.append(code(30, y, [("▸ ", ACCENT), (f"{verb:<8}", ACCENT), (arg, TEXT)], 11))
+        a.append(t(296, y, res, 10, "m", "end"))
+    # chart
+    a.append(panel(326, 18, 290, 160))
+    a.append(t(338, 40, "QoQ revenue growth", 10, "m"))
+    bars = [("north", 18), ("west", 11), ("east", 6), ("south", -3)]
+    zero, scale = 412, 8
+    a.append(f'<line x1="{zero}.5" y1="52" x2="{zero}.5" y2="166" stroke="{LINE}"/>')
+    for i, (k, v) in enumerate(bars):
+        y = 58 + i * 27
+        a.append(t(338, y + 13, k, 11, "p" if i == 0 else ""))
+        x, w = (zero, v * scale) if v >= 0 else (zero + v * scale, -v * scale)
+        a.append(f'<rect x="{x}" y="{y+2}" width="{w}" height="14" fill="{ACCENT if i == 0 else MUTED}"/>')
+        a.append(t(zero + max(v, 0) * scale + 8, y + 13, f"{v:+d}%", 11, "a w" if i == 0 else "m"))
+    # insight
+    a.append(panel(634, 18, 228, 160, ACCENT))
+    a.append(t(646, 40, "INSIGHT", 10, "m"))
+    a.append(t(646, 76, "+18%", 30, "a s", extra=' style="font-weight:300"'))
+    a.append(t(646, 102, "north grew fastest", 12, "p"))
+    a.append(t(646, 120, "quarter over quarter", 12, "p"))
+    a.append(t(646, 160, "numbers: pandas", 10, "m"))
+    a.append(t(646, 172, "words: the LLM", 10, "m"))
+    a.append(t(18, 210, "upload data, ask in plain words: stats, charts and insight, no code", 11, "m"))
+    a.append(t(862, 210, "FastAPI · React · Postgres", 11, "a", "end"))
+    return a
+
+
+FEATURED = ("open-analyst", "★", "open-analyst", "open source · apache-2.0", "Open-source AI data analyst",
+            "python · typescript",
+            "Open Analyst: open-source AI data analyst that turns raw data into statistics, charts and "
+            "plain-language insights through conversation", art_open_analyst)
 
 
 def panel(x, y, w, h, stroke=LINE, fill=PANEL):
@@ -393,6 +436,8 @@ def main():
     (OUT / "header.svg").write_text(header())
     for i, (slug, name, right, cap, lang, title, art) in enumerate(TILES, 1):
         (OUT / f"tile-{slug}.svg").write_text(tile(i, name, right, cap, lang, title, "".join(art())))
+    slug, n, name, right, cap, lang, title, art = FEATURED
+    (OUT / f"tile-{slug}.svg").write_text(tile(n, name, right, cap, lang, title, "".join(art()), TW=880))
     (OUT / "terminal.svg").write_text(terminal())
     (OUT / "pipeline.svg").write_text(pipeline())
     (OUT / "stack.svg").write_text(stack())

@@ -4,6 +4,7 @@
 
 <img src="assets/terminal.svg" width="100%" alt="Terminal: whoami. Yoosuf Ahamed, AI engineer intern and data science student at SLIIT, focused on LLMs, RAG and AI agents.">
 
+<a href="https://github.com/YOOSUF-HUB/Open-Analyst"><img src="assets/tile-open-analyst.svg" width="100%" alt="Open Analyst: open-source AI data analyst that turns raw data into statistics, charts and plain-language insights through conversation"></a>
 <a href="https://github.com/YOOSUF-HUB/idea-forge"><img src="assets/tile-idea-forge.svg" width="50%" alt="Idea Forge: agentic product coach that scores ideas and drafts MVP plans"></a><a href="https://github.com/YOOSUF-HUB/API-Sentinel-AI-"><img src="assets/tile-api-sentinel.svg" width="50%" alt="API Sentinel AI: agentic RAG that reviews API documentation"></a>
 <a href="https://github.com/YOOSUF-HUB/AI-Project-Manager-MCP-Server"><img src="assets/tile-mcp-pm.svg" width="50%" alt="AI Project Manager MCP Server: Claude Desktop meets a SQLite project database"></a><a href="https://github.com/YOOSUF-HUB/Brain_Tumor_Classification_CNN"><img src="assets/tile-brain-tumor.svg" width="50%" alt="Brain Tumor Classification CNN: classifies brain tumours from MRI scans"></a>
 
